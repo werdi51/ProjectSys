@@ -1,0 +1,77 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Naperstki\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D0348E8D-F760-4008-92E0-1FCA08B4BB9D}|Naperstki.vcxproj|C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Naperstki\\Naperstki.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{D0348E8D-F760-4008-92E0-1FCA08B4BB9D}|Naperstki.vcxproj|solutionrelative:Naperstki.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{774AF464-8028-4BD3-8471-23FE3D24CF85}|..\\Glass\\Glass.vcxproj|C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Glass\\Glass.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C90826BE-1D4F-4D75-9600-085E6375A191}|..\\Ball\\Ball.vcxproj|C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Ball\\Ball.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Ball.cpp",
+              "DocumentMoniker": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Ball\\Ball.cpp",
+              "RelativeDocumentMoniker": "..\\Ball\\Ball.cpp",
+              "ToolTip": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Ball\\Ball.cpp",
+              "RelativeToolTip": "..\\Ball\\Ball.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-02-28T19:25:36.203Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Glass.cpp",
+              "DocumentMoniker": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Glass\\Glass.cpp",
+              "RelativeDocumentMoniker": "..\\Glass\\Glass.cpp",
+              "ToolTip": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Glass\\Glass.cpp",
+              "RelativeToolTip": "..\\Glass\\Glass.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-02-28T19:25:26.961Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Naperstki.cpp",
+              "DocumentMoniker": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Naperstki\\Naperstki.cpp",
+              "RelativeDocumentMoniker": "Naperstki.cpp",
+              "ToolTip": "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\Naperstki\\Naperstki.cpp",
+              "RelativeToolTip": "Naperstki.cpp",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAkwKgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-02-28T19:24:35.209Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

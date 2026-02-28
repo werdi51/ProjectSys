@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="../Ball/Ball.vcxproj" Id="c90826be-1d4f-4d75-9600-085e6375a191" />
+  <Project Path="../Glass/Glass.vcxproj" Id="774af464-8028-4bd3-8471-23fe3d24cf85" />
+  <Project Path="Naperstki.vcxproj" Id="d0348e8d-f760-4008-92e0-1fca08b4bb9d" />
+</Solution>
