@@ -30,11 +30,11 @@ void CreateGlasses()
 	PROCESS_INFORMATION pi[3];
 	vector<HWND> hWnds(3);
 
-	std::string appPath = "C:\\Users\\anton\\OneDrive\\Desktop\\Sys\\Proect\\Naperstki\\x64\\Debug\\Glass.exe";
+	std::string appPath = "C:\\Users\\anton\\OneDrive\\Desktop\\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Glass.exe";
 
-	string BallPath = "C:\\Users\\anton\\OneDrive\\Desktop\\Sys\\Proect\\Naperstki\\x64\\Debug\\Ball.exe";
+	string BallPath = "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Ball.exe";
 
-	if (appPath == "C:\\Users\\anton\\OneDrive\\Desktop\\Sys\\Proect\\Naperstki\\x64\\Debug\\Glass.exes")
+	if (appPath == "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Glass.exes")
 	{
 		cout << "вставь свой путь к процессу стакана" << endl;
 	}
