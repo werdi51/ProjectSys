@@ -11,37 +11,27 @@
 //																										ANSI ↔ Unicode
 
 using namespace std;
-
 static int CountGlasses = 3;
-
-
-
-STARTUPINFOA si = { sizeof(si) };
-PROCESS_INFORMATION pi[3];
-
-STARTUPINFOA Bsi = { sizeof(Bsi) };
-PROCESS_INFORMATION Bpi;
-
-vector<HWND> hWnds(3);
 HWND Ball;
+
 void CreateGlasses()
 {
+	STARTUPINFOA Bsi = { sizeof(Bsi) };
+	PROCESS_INFORMATION Bpi;
+
 	STARTUPINFOA si = { sizeof(si) };
 	PROCESS_INFORMATION pi[3];
 	vector<HWND> hWnds(3);
 
-	std::string appPath = "C:\\Users\\anton\\OneDrive\\Desktop\\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Glass.exe";
+	string appPath = "D:\\система прогр\\ProjectSys-master\\Naperstki\\x64\\Debug\\Glass.exe";
+	string BallPath = "D:\\система прогр\\ProjectSys-master\\Naperstki\\x64\\Debug\\Ball.exe";
 
-	string BallPath = "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Ball.exe";
-
-	if (appPath == "C:\\Users\\anton\\OneDrive\\Desktop\\dll\\ProjectSys\\Naperstki\\x64\\Debug\\Glass.exes")
+	if (appPath == "D:\\система прогр\\ProjectSys-master\\Naperstki\\x64\\Debug\\Glass.exze")
 	{
 		cout << "вставь свой путь к процессу стакана" << endl;
 	}
 	else
 	{
-
-
 		for (int i = 0; i < CountGlasses; i++) {
 
 			std::string cmdLine = appPath + " " + std::to_string(i + 1);
@@ -65,7 +55,6 @@ void CreateGlasses()
 		}
 		Sleep(1000);
 
-
 		std::string cmdLine = BallPath + " " + std::to_string(1);
 
 		BOOL success = CreateProcessA(
@@ -80,25 +69,10 @@ void CreateGlasses()
 			&Bsi,                    // STARTUPINFO
 			&Bpi                  // PROCESS_INFORMATION
 		);
-
 		if (!success) {
 			std::cerr << "Failed to create process b" << 1 << std::endl;
 		}
-		else
-		{
-
-		}
-
-		std::string title = "Ball";
-
-		Ball = FindWindowA(NULL, title.c_str());
-		if (Ball == NULL) {
-			std::cerr << "Window " << " not found" << std::endl;
-		}
-		else {
-			std::cout << "Window " << " found" << std::endl;
-		}
-
+		Sleep(1000);
 
 		for (int i = 0; i < CountGlasses; i++) {
 			std::string title = "Naperstki_" + std::to_string(i + 1);
@@ -111,9 +85,14 @@ void CreateGlasses()
 			}
 		}
 
-
-
-
+		std::string title = "Ball";
+		Ball = FindWindowA(NULL, title.c_str());
+		if (Ball == NULL) {
+			std::cerr << "Window Ball not found" << std::endl;
+		}
+		else {
+			std::cout << "Window Ball found" << std::endl;
+		}
 
 		//ПАРАМЕТРЫ ДЛЯ SetWindowPos
 
@@ -126,24 +105,32 @@ void CreateGlasses()
 		//ШЕСТОЕ-ВЫСОТА ОКНА
 		//СЕДЬМОЕ-КАКИЕ НИБУДЬ ЗАПРЕТЫ (СТОИТ ЗАПРЕТ НА ИЗМЕНЕНИЕ Z ОСИ ИЗ ЗА ЧЕГО 2 ПАРАМЕТР ПУСТОЕ Т.К. НЕ НУЖЕН)
 
+		int glass2X = 0, glass2Y = 0; //хранение позиции второго сткана
+
+		//позиционирование ругих стаканов 
 		for (int i = 0; i < CountGlasses; i++) {
-			if (i == 1)
-			{
-				SetWindowPos(hWnds[i], NULL, 150 + i * 500, 300, 200, 400, SWP_NOZORDER);
-				SetWindowPos(Ball, NULL, 150 + i * 500, 300, 200, 400, SWP_NOZORDER);
-			}
-			if (hWnds[i])
-			{
-				SetWindowPos(hWnds[i], NULL, 150 + i * 500, 300, 200, 400, SWP_NOZORDER);
+			if (hWnds[i]) {
+				int x = 150 + i * 500;
+				int y = 300;
+				SetWindowPos(hWnds[i], NULL, x, y, 200, 400, SWP_NOZORDER);
 
+				//сохранение позиции второго стакана
+				if (i == 1) {
+					glass2X = x;
+					glass2Y = y;
+				}
 			}
-
 		}
 
 
-
-
-
+		//позиционирование шарика под второй стакан
+		if (Ball != NULL && glass2X != 0) {
+			SetWindowPos(Ball, NULL,
+				glass2X,
+				glass2Y,
+				200, 400,
+				SWP_NOZORDER);
+		}
 
 		HANDLE hProcesses[3];
 		for (int i = 0; i < CountGlasses; i++) {
@@ -155,17 +142,12 @@ void CreateGlasses()
 			CloseHandle(pi[i].hProcess);
 			CloseHandle(pi[i].hThread);
 		}
-
 	}
-
-
 }
+
 int main()
 {
 	setlocale(0, "rus");
 	CreateGlasses();
-
-
-
 	return 0;
 }
