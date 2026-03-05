@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <Windows.h>
 #include <string>
 #include <vector>	
@@ -105,14 +105,15 @@ void CreateGlasses()
 		//ШЕСТОЕ-ВЫСОТА ОКНА
 		//СЕДЬМОЕ-КАКИЕ НИБУДЬ ЗАПРЕТЫ (СТОИТ ЗАПРЕТ НА ИЗМЕНЕНИЕ Z ОСИ ИЗ ЗА ЧЕГО 2 ПАРАМЕТР ПУСТОЕ Т.К. НЕ НУЖЕН)
 
-		int glass2X = 0, glass2Y = 0; //хранение позиции второго сткана
+		int glass2X = 0, glass2Y = 0;//хранение позиции второго сткана
+		int glassHeight = 400;//высота окна стакана
 
-		//позиционирование ругих стаканов 
+		//позиционирование других стаканов 
 		for (int i = 0; i < CountGlasses; i++) {
 			if (hWnds[i]) {
 				int x = 150 + i * 500;
 				int y = 300;
-				SetWindowPos(hWnds[i], NULL, x, y, 200, 400, SWP_NOZORDER);
+				SetWindowPos(hWnds[i], HWND_TOP, x, y, 200, glassHeight, SWP_SHOWWINDOW);
 
 				//сохранение позиции второго стакана
 				if (i == 1) {
@@ -122,14 +123,59 @@ void CreateGlasses()
 			}
 		}
 
+		//размер шарика
+		int ballWidth = 200;
+		int ballHeight = 200;
 
-		//позиционирование шарика под второй стакан
+		//позиционирование шарика за вторым стаканом
 		if (Ball != NULL && glass2X != 0) {
-			SetWindowPos(Ball, NULL,
-				glass2X,
-				glass2Y,
-				200, 400,
-				SWP_NOZORDER);
+			SetWindowPos(Ball, HWND_BOTTOM,//помещаем окно шарика под второй стакан
+				glass2X + 30,//делаем шарик по центру стакана
+				glass2Y + 125,//опускаем шарик вниз, чтобы он был в нижней части стакана
+				ballWidth, ballHeight,
+				SWP_SHOWWINDOW);
+		}
+
+		//НАЧАЛЬНАЯ АНИМАЦИЯ 
+
+		if (hWnds[1] != NULL && Ball != NULL) {
+			Sleep(1000);
+
+			//поднимаем второй стакан вверх
+			for (int i = 0; i < 40; i++) {
+				SetWindowPos(hWnds[1], HWND_TOP,
+					glass2X,
+					glass2Y - i * 5,//постепенно поднимаем вверх
+					200, glassHeight,
+					SWP_SHOWWINDOW);
+				Sleep(15);
+			}
+
+			//поднимаем шарик чуть выше второго стакана
+			for (int i = 0; i < 10; i++) {
+				SetWindowPos(Ball, HWND_TOP,//временно поднимаем шарик поверх второго
+					glass2X + 25,
+					glass2Y + 125 - i * 5,
+					ballWidth, ballHeight,
+					SWP_SHOWWINDOW);
+				Sleep(10);
+			}
+			Sleep(1500);
+
+
+
+			//опускаем второй стакан вниз
+			for (int i = 39; i >= 0; i--) {
+				SetWindowPos(hWnds[1], HWND_TOP,
+					glass2X,
+					glass2Y - i * 5,//постепенно опускаем вниз
+					200, glassHeight,
+					SWP_SHOWWINDOW);
+				Sleep(15);
+			}
+
+			SetWindowPos(hWnds[1], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(Ball, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		}
 
 		HANDLE hProcesses[3];
@@ -148,6 +194,14 @@ void CreateGlasses()
 int main()
 {
 	setlocale(0, "rus");
+	cout << "          ИГРА В НАПЕРСТКИ" << endl;
+	cout << endl;
+	cout << "правила игры: " << endl;
+	cout << "шарик находится под одним из наперстков" << endl;
+	cout << "ваша задача угадать, под каким" << endl;
+	cout << endl;
+	cout << "нажмите enter, чтобы начать игру" << endl;
+	cin.get();
 	CreateGlasses();
 	return 0;
 }
