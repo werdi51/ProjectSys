@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     SetConsoleTitleA("Ball");
 
 
-    char map[20][20] = {
+    char map[8][20] = {
         "----------------",
         "|              |",
         "|              |",
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
         "|              |",
         "----------------"
     };
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < 8; i++) {
         std::cout << map[i] << std::endl;
     }
 

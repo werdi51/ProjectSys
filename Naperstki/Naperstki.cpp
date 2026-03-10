@@ -4,7 +4,6 @@
 #include <vector>	
 #include <ctime>  
 #include <cstdlib> 
-
 #include <io.h>
 #include <fcntl.h>
 
@@ -14,193 +13,239 @@ static int CountGlasses = 3;
 HWND Ball;
 int ballUnderGlassIndex = 1;
 
+// ========== GLOBAL ==========
+
+
+const int GLASS_WIDTH = 620;      // ширина стакана
+const int GLASS_HEIGHT = 500;     // высота стакана
+const int BALL_WIDTH = 400;        // ширина мяча (из Ball.exe)
+const int BALL_HEIGHT = 300;       // высота мяча
+const int GAP_BETWEEN = 10;       // зазор между стаканами (чтобы не слипались)
+const int START_X = 150;           // начальная позиция первого стакана по X
+const int START_Y = 300;           // позиция по Y для всех стаканов
+const int BALL_Y_OFFSET = 125;     // смещение мяча относительно верха стакана (подберите визуально)
+
+
+// ==============================
 
 void ShuffleGlasses(vector<HWND>& hWnds) {
-	srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(time(0)));
 
-	int shuffleCount = 5; 
+    int shuffleCount = 5;
 
-	for (int s = 0; s < shuffleCount; s++) {
-		// выбираем два случайных разных стакана
-		int idx1 = rand() % 3;
-		int idx2 = rand() % 3;
-		while (idx1 == idx2) {
-			idx2 = rand() % 3;
-		}
+    for (int s = 0; s < shuffleCount; s++) {
+        // выбираем два случайных разных стакана
+        int idx1 = rand() % 3;
+        int idx2 = rand() % 3;
+        while (idx1 == idx2) {
+            idx2 = rand() % 3;
+        }
 
-		// текущие позиции окон
-		RECT rect1, rect2;
-		GetWindowRect(hWnds[idx1], &rect1);
-		GetWindowRect(hWnds[idx2], &rect2);
+        // текущие позиции окон
+        RECT rect1, rect2;
+        GetWindowRect(hWnds[idx1], &rect1);
+        GetWindowRect(hWnds[idx2], &rect2);
 
-		int x1 = rect1.left, y1 = rect1.top;
-		int x2 = rect2.left, y2 = rect2.top;
+        int x1 = rect1.left, y1 = rect1.top;
+        int x2 = rect2.left, y2 = rect2.top;
 
-		int steps = 10;
-		int dx = (x2 - x1) / steps;
+        int steps = 10;
+        int dx = (x2 - x1) / steps;
 
-		for (int i = 0; i <= steps; i++) {
-			SetWindowPos(hWnds[idx1], HWND_TOP, x1 + dx * i, y1, 200, 400, SWP_SHOWWINDOW);
-			SetWindowPos(hWnds[idx2], HWND_TOP, x2 - dx * i, y2, 200, 400, SWP_SHOWWINDOW);
-			Sleep(20);
-		}
+        for (int i = 0; i <= steps; i++) {
+            SetWindowPos(hWnds[idx1], HWND_TOP, x1 + dx * i, y1, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+            SetWindowPos(hWnds[idx2], HWND_TOP, x2 - dx * i, y2, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+            Sleep(20);
+        }
 
-		swap(hWnds[idx1], hWnds[idx2]);
+        swap(hWnds[idx1], hWnds[idx2]);
 
-		// обновляем индекс мяча
-		if (ballUnderGlassIndex == idx1) {
-			ballUnderGlassIndex = idx2;
-		}
-		else if (ballUnderGlassIndex == idx2) {
-			ballUnderGlassIndex = idx1;
-		}
+        // обновляем индекс мяча
+        if (ballUnderGlassIndex == idx1) {
+            ballUnderGlassIndex = idx2;
+        }
+        else if (ballUnderGlassIndex == idx2) {
+            ballUnderGlassIndex = idx1;
+        }
 
-		Sleep(150);
-	}
+        Sleep(150);
+    }
 }
 
-void CreateGlasses()
-{
-	STARTUPINFOA Bsi = { sizeof(Bsi) };
-	PROCESS_INFORMATION Bpi;
+void StartGame() {
+    STARTUPINFOA Bsi = { sizeof(Bsi) };
+    PROCESS_INFORMATION Bpi;
 
-	STARTUPINFOA si = { sizeof(si) };
-	PROCESS_INFORMATION pi[3];
-	vector<HWND> hWnds(3);
+    STARTUPINFOA si = { sizeof(si) };
+    PROCESS_INFORMATION pi[3];
+    vector<HWND> hWnds(3);
 
-	string appPath = "Glass.exe";
-	string BallPath = "Ball.exe";
+    string appPath = "Glass.exe";
+    string BallPath = "Ball.exe";
 
-	for (int i = 0; i < CountGlasses; i++) {
-		std::string cmdLine = appPath + " " + std::to_string(i + 1);
+    // Создание процессов стаканов
+    for (int i = 0; i < CountGlasses; i++) {
+        string cmdLine = appPath + " " + to_string(i + 1);
+        BOOL success = CreateProcessA(
+            NULL, (LPSTR)cmdLine.c_str(), NULL, NULL, FALSE,
+            CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi[i]);
+        if (!success) {
+            cerr << "Failed to create process " << i + 1 << endl;
+        }
+    }
+    Sleep(1000);
 
-		BOOL success = CreateProcessA(
-			NULL, (LPSTR)cmdLine.c_str(), NULL, NULL, FALSE,
-			CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi[i]);
+    // Создание процесса мяча
+    string cmdLine = BallPath + " " + to_string(1);
+    BOOL success = CreateProcessA(
+        NULL, (LPSTR)cmdLine.c_str(), NULL, NULL, FALSE,
+        CREATE_NEW_CONSOLE, NULL, NULL, &Bsi, &Bpi);
+    if (!success) {
+        cerr << "Failed to create process Ball" << endl;
+    }
+    Sleep(1000);
 
-		if (!success) {
-			std::cerr << "Failed to create process " << i + 1 << std::endl;
-		}
-	}
-	Sleep(1000);
+    // Поиск окон стаканов
+    for (int i = 0; i < CountGlasses; i++) {
+        string title = "Naperstki_" + to_string(i + 1);
+        hWnds[i] = FindWindowA(NULL, title.c_str());
+    }
 
-	std::string cmdLine = BallPath + " " + std::to_string(1);
-	BOOL success = CreateProcessA(
-		NULL, (LPSTR)cmdLine.c_str(), NULL, NULL, FALSE,
-		CREATE_NEW_CONSOLE, NULL, NULL, &Bsi, &Bpi);
+    // Поиск окна мяча
+    Ball = FindWindowA(NULL, "Ball");
 
-	if (!success) {
-		std::cerr << "Failed to create process Ball" << std::endl;
-	}
-	Sleep(1000);
+    // Расстановка стаканов с равными промежутками
+    int glass2X = 0, glass2Y = 0;
+    for (int i = 0; i < CountGlasses; i++) {
+        if (hWnds[i]) {
+            int x = START_X + i * (GLASS_WIDTH + GAP_BETWEEN);
+            int y = START_Y;
+            SetWindowPos(hWnds[i], HWND_TOP, x, y, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+            if (i == 1) {
+                glass2X = x;
+                glass2Y = y;
+            }
+        }
+    }
+    // Позиционирование мяча под вторым стаканом (индекс 1)
+    if (Ball != NULL && glass2X != 0) {
+        int ballX = glass2X + (GLASS_WIDTH - BALL_WIDTH) / 2;
+        int ballY = glass2Y + BALL_Y_OFFSET;
+        SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+    }
 
-	// Поиск окон стаканов
-	for (int i = 0; i < CountGlasses; i++) {
-		std::string title = "Naperstki_" + std::to_string(i + 1);
-		hWnds[i] = FindWindowA(NULL, title.c_str());
-	}
+    // === НАЧАЛЬНАЯ АНИМАЦИЯ (показываем где мяч) ===
+    if (hWnds[1] != NULL && Ball != NULL) {
+        Sleep(1000);
 
-	// Поиск окна мяча
-	Ball = FindWindowA(NULL, "Ball");
+        // Поднимаем стакан
+        for (int i = 0; i < 70; i++) {
+            SetWindowPos(hWnds[1], HWND_TOP, glass2X, glass2Y - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+            Sleep(15);
+        }
+        // Показываем мяч (поднимаем его чуть выше)
+        for (int i = 0; i < 10; i++) {
+            int ballX = glass2X + (GLASS_WIDTH - BALL_WIDTH) / 2;
+            int ballY = glass2Y + BALL_Y_OFFSET;
+            SetWindowPos(Ball, HWND_TOP, ballX, ballY - i * 5, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+            Sleep(10);
+        }
+        Sleep(1500);
 
-	// Расстановка стаканов
-	int glass2X = 0, glass2Y = 0;
-	int glassHeight = 400;
+        // Опускаем стакан обратно
+        for (int i = 69; i >= 0; i--) {
+            SetWindowPos(hWnds[1], HWND_TOP, glass2X, glass2Y - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+            Sleep(15);
+        }
+    }
 
-	for (int i = 0; i < CountGlasses; i++) {
-		if (hWnds[i]) {
-			int x = 150 + i * 500;
-			int y = 300;
-			SetWindowPos(hWnds[i], HWND_TOP, x, y, 200, glassHeight, SWP_SHOWWINDOW);
-			if (i == 1) {
-				glass2X = x;
-				glass2Y = y;
-			}
-		}
-	}
+    // Прячем мяч перед перемешиванием
+    if (Ball != NULL) {
+        ShowWindow(Ball, SW_HIDE);
+    }
 
-	// Позиционирование мяча под вторым стаканом (индекс 1)
-	if (Ball != NULL && glass2X != 0) {
-		SetWindowPos(Ball, HWND_BOTTOM, glass2X + 30, glass2Y + 125, 200, 200, SWP_SHOWWINDOW);
-	}
+    // Перемешивание стаканов
+    ShuffleGlasses(hWnds);
 
-	// === НАЧАЛЬНАЯ АНИМАЦИЯ (показываем где мяч) ===
-	if (hWnds[1] != NULL && Ball != NULL) {
-		Sleep(1000);
+    // Показываем мяч под тем стаканом, где он оказался
+    if (Ball != NULL) {
+        RECT rect;
+        GetWindowRect(hWnds[ballUnderGlassIndex], &rect);
+        int ballX = rect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
+        int ballY = rect.top + BALL_Y_OFFSET;
+        SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+        ShowWindow(Ball, SW_SHOW);
+    }
 
-		// Поднимаем стакан
-		for (int i = 0; i < 40; i++) {
-			SetWindowPos(hWnds[1], HWND_TOP, glass2X, glass2Y - i * 5, 200, glassHeight, SWP_SHOWWINDOW);
-			Sleep(15);
-		}
-		// Показываем мяч
-		for (int i = 0; i < 10; i++) {
-			SetWindowPos(Ball, HWND_TOP, glass2X + 25, glass2Y + 125 - i * 5, 200, 200, SWP_SHOWWINDOW);
-			Sleep(10);
-		}
-		Sleep(1500);
+    // Запрос ответа у пользователя
+    cout << "\nПод каким стаканом мяч? Введите число (1-3): ";
+    int userGuess;
+    cin >> userGuess;
+    userGuess--;
 
-		// Опускаем стакан
-		for (int i = 39; i >= 0; i--) {
-			SetWindowPos(hWnds[1], HWND_TOP, glass2X, glass2Y - i * 5, 200, glassHeight, SWP_SHOWWINDOW);
-			Sleep(15);
-		}
-	}
+    // Проверка ответа
+    if (userGuess == ballUnderGlassIndex) {
+        cout << "ВЫ УГАДАЛИ! ПОБЕДА!" << endl;
+    }
+    else {
+        cout << "НЕВЕРНО! Мяч был под стаканом " << (ballUnderGlassIndex + 1) << endl;
+    }
 
+    // === АНИМАЦИЯ ПОКАЗА ПРАВИЛЬНОГО ОТВЕТА ===
+    HWND glassWithBall = hWnds[ballUnderGlassIndex];
+    RECT glassRect;
+    GetWindowRect(glassWithBall, &glassRect);
+    int glassX = glassRect.left;
+    int glassY = glassRect.top;
 
-	if (Ball != NULL) {
-		ShowWindow(Ball, SW_HIDE);
-	}
+    // Убедимся, что мяч виден
+    ShowWindow(Ball, SW_SHOW);
 
-	ShuffleGlasses(hWnds);
+    // Поднимаем нужный стакан над всеми окнами (на случай, если он был под другими)
+    SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
 
-	if (Ball != NULL) {
-		RECT rect;
-		GetWindowRect(hWnds[ballUnderGlassIndex], &rect);
-		SetWindowPos(Ball, HWND_BOTTOM, rect.left + 30, rect.top + 125, 200, 200, SWP_SHOWWINDOW);
-		ShowWindow(Ball, SW_SHOW); 
-	}
+    // Анимация поднятия стакана вверх
+    for (int i = 0; i <= 40; i++) {
+        SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+        Sleep(15);
+    }
+    Sleep(1500); // пауза, чтобы игрок увидел мяч
 
-	cout << "\nПод каким стаканом мяч? Введите число (1-3): ";
-	int userGuess;
-	cin >> userGuess;
-	userGuess--;
+    // Опускаем стакан обратно
+    for (int i = 40; i >= 0; i--) {
+        SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+        Sleep(15);
+    }
+    // =============================================
 
-	// <-- НОВОЕ: ПРОВЕРЯЕМ ОТВЕТ
-	if (userGuess == ballUnderGlassIndex) {
-		cout << "ВЫ УГАДАЛИ! ПОБЕДА!" << endl;
-	}
-	else {
-		cout << "НЕВЕРНО! Мяч был под стаканом " << (ballUnderGlassIndex + 1) << endl;
-	}
+    // Ожидание завершения процессов
+    HANDLE hProcesses[3];
+    for (int i = 0; i < CountGlasses; i++) {
+        hProcesses[i] = pi[i].hProcess;
+    }
+    WaitForMultipleObjects(3, hProcesses, TRUE, INFINITE);
 
-	// Ожидание завершения процессов
-	HANDLE hProcesses[3];
-	for (int i = 0; i < CountGlasses; i++) {
-		hProcesses[i] = pi[i].hProcess;
-	}
-	WaitForMultipleObjects(3, hProcesses, TRUE, INFINITE);
-
-	// Очистка ресурсов
-	for (int i = 0; i < CountGlasses; i++) {
-		CloseHandle(pi[i].hProcess);
-		CloseHandle(pi[i].hThread);
-	}
+    // Очистка ресурсов
+    for (int i = 0; i < CountGlasses; i++) {
+        CloseHandle(pi[i].hProcess);
+        CloseHandle(pi[i].hThread);
+    }
+    CloseHandle(Bpi.hProcess);
+    CloseHandle(Bpi.hThread);
 }
 
-int main()
-{
-	setlocale(0, "rus");
-	cout << "          ИГРА В НАПЕРСТКИ" << endl;
-	cout << endl;
-	cout << "Правила игры:" << endl;
-	cout << "1. Шарик находится под одним из наперстков" << endl;
-	cout << "2. Запомните, под каким" << endl;
-	cout << "3. Когда стаканы перемешаются - угадайте где мяч" << endl;
-	cout << endl;
-	cout << "Нажмите Enter, чтобы начать игру..." << endl;
-	cin.get();
+int main() {
+    setlocale(0, "rus");
+    cout << "          ИГРА В НАПЕРСТКИ" << endl;
+    cout << endl;
+    cout << "Правила игры:" << endl;
+    cout << "1. Шарик находится под одним из наперстков" << endl;
+    cout << "2. Запомните, под каким" << endl;
+    cout << "3. Когда стаканы перемешаются - угадайте где мяч" << endl;
+    cout << endl;
+    cout << "Нажмите Enter, чтобы начать игру..." << endl;
+    cin.get();
 
-	CreateGlasses();
-	return 0;
+    StartGame();
+    return 0;
 }
