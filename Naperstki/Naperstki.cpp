@@ -185,7 +185,6 @@ void StartGame() {
             int ballX = glass2X + (GLASS_WIDTH - BALL_WIDTH) / 2;
             int ballY = glass2Y + BALL_Y_OFFSET;
             SetWindowPos(Ball, HWND_TOP, ballX, ballY - i * 5, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
-            Sleep(10);
         }
         Sleep(1500);
 
