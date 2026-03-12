@@ -91,7 +91,7 @@ void StartGame() {
             cerr << "Failed to create process " << i + 1 << endl;
         }
     }
-    Sleep(1000);
+    Sleep(100);
 
     // Создание процесса мяча
     string cmdLine = BallPath + " " + to_string(1);
