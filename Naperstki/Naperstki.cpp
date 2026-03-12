@@ -71,6 +71,9 @@ void ShuffleGlasses(vector<HWND>& hWnds) {
 }
 
 void StartGame() {
+
+
+
     STARTUPINFOA Bsi = { sizeof(Bsi) };
     PROCESS_INFORMATION Bpi;
 
@@ -280,9 +283,10 @@ void StartGame() {
 
         
         Sleep(1000);
+
+
+
     }
-    // =========================================
-    // 
 
 
 
@@ -323,16 +327,37 @@ void StartGame() {
 
 int main() {
     setlocale(0, "rus");
-    cout << "          ИГРА В НАПЕРСТКИ" << endl;
-    cout << endl;
-    cout << "Правила игры:" << endl;
-    cout << "1. Шарик находится под одним из наперстков" << endl;
-    cout << "2. Запомните, под каким" << endl;
-    cout << "3. Когда стаканы перемешаются - угадайте где мяч" << endl;
-    cout << endl;
-    cout << "Нажмите Enter, чтобы начать игру..." << endl;
-    cin.get();
 
-    StartGame();
+    HANDLE Mutex = CreateMutexA(NULL, TRUE, "Naperstki");
+    Sleep(1000);
+
+    if (!Mutex)
+    {
+        cout << "Не создался мьютекс" << endl;
+    }
+    else
+    {
+        cout << "          ИГРА В НАПЕРСТКИ" << endl;
+        cout << endl;
+        cout << "Правила игры:" << endl;
+        cout << "1. Шарик находится под одним из наперстков" << endl;
+        cout << "2. Запомните, под каким" << endl;
+        cout << "3. Когда стаканы перемешаются - угадайте где мяч" << endl;
+        cout << endl;
+        cout << "Нажмите Enter, чтобы начать игру..." << endl;
+        cin.get();
+
+        StartGame();
+
+
+        ReleaseMutex(Mutex);
+
+        Sleep(3000);
+        CloseHandle(Mutex);
+    }
+
+
+    
+
     return 0;
 }

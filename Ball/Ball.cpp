@@ -8,6 +8,7 @@ int main(int argc, char* argv[])
 
     SetConsoleTitleA("Ball");
 
+    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstrki");
 
     char map[8][20] = {
         "----------------",
@@ -23,7 +24,12 @@ int main(int argc, char* argv[])
         std::cout << map[i] << std::endl;
     }
 
-    std::cin.get();
+    /*std::cin.get();*/
+
+    WaitForSingleObject(Mutex, INFINITE);
+    CloseHandle(Mutex);
+
+
 
 }
 

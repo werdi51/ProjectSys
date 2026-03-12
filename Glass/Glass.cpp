@@ -4,12 +4,19 @@
 
 int main(int argc, char* argv[])
 {
+
     if (argc >= 2) {
         int num = std::atoi(argv[1]);
         std::string title = "Naperstki_" + std::to_string(num);
         SetConsoleTitleA(title.c_str());
     }
     Sleep(2000);
+    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstrki");
+    if (!Mutex)
+    {
+        std::cout << "не открылся" <<GetLastError()<< std::endl;
+        Sleep(5000);
+    }
     SetConsoleTitleA("eafdsa");
 
 
@@ -40,6 +47,10 @@ int main(int argc, char* argv[])
         std::cout << map[i] << std::endl;
     }
 
-    std::cin.get();
+    //std::cin.get();
+
+    WaitForSingleObject(Mutex, INFINITE);
+    CloseHandle(Mutex);
+
     return 0;
 }
