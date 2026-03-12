@@ -285,7 +285,6 @@ void StartGame() {
         Sleep(1000);
 
 
-
     }
 
 
@@ -334,6 +333,8 @@ int main() {
     if (!Mutex)
     {
         cout << "Не создался мьютекс" << endl;
+        return 0;
+
     }
     else
     {
@@ -354,10 +355,11 @@ int main() {
 
         Sleep(3000);
         CloseHandle(Mutex);
+        return 0;
+
     }
 
 
     
 
-    return 0;
 }
