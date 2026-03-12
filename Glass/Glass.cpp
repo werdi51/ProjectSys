@@ -5,19 +5,21 @@
 int main(int argc, char* argv[])
 {
 
+    setlocale(0, "rus");
+
     if (argc >= 2) {
         int num = std::atoi(argv[1]);
         std::string title = "Naperstki_" + std::to_string(num);
         SetConsoleTitleA(title.c_str());
     }
     Sleep(2000);
-    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstrki");
+    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstki");
     if (!Mutex)
     {
         std::cout << "не открылся" <<GetLastError()<< std::endl;
         Sleep(5000);
     }
-    SetConsoleTitleA("eafdsa");
+    SetConsoleTitleA("thimble");
 
 
     char map[20][20] = {

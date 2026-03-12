@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 
     SetConsoleTitleA("Ball");
 
-    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstrki");
+    HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstki");
 
     char map[8][20] = {
         "----------------",
