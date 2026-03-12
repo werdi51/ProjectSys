@@ -104,7 +104,43 @@ void StartGame() {
     if (!success) {
         cerr << "Failed to create process Ball" << endl;
     }
-    Sleep(1000);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Sleep(1000); //если работать не будет корректно поставь или тут 100 или в верхнем 100, в общем уменьшить время
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Поиск окон стаканов
     for (int i = 0; i < CountGlasses; i++) {
@@ -218,6 +254,8 @@ void StartGame() {
 
                 ShowWindow(Ball, SW_SHOW);
 
+                SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
             }
         }
         firstRound = false;
@@ -259,17 +297,34 @@ void StartGame() {
         int glassX = glassRect.left;
         int glassY = glassRect.top;
 
-        ShowWindow(Ball, SW_SHOW);
+        RECT ballRect;
+        GetWindowRect(Ball, &ballRect);
+        int ballX = ballRect.left;
+        int ballY = ballRect.top;
+
+        // Убеждаемся, что мяч под стаканом (на случай, если что-то сбилось)
+        SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+
+        // Поднимаем стакан над всеми
         SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
         for (int i = 0; i <= 40; i++) {
             SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
             Sleep(15);
         }
-        Sleep(1500);
+        Sleep(1500); // пауза, чтобы игрок увидел мяч
+
+        // Опускаем стакан
         for (int i = 40; i >= 0; i--) {
             SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
             Sleep(15);
         }
+
+        GetWindowRect(glassWithBall, &glassRect);  // обновляем координаты стакана
+        int newBallX = glassRect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
+        int newBallY = glassRect.top + BALL_Y_OFFSET;
+        SetWindowPos(Ball, HWND_BOTTOM, newBallX, newBallY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+
+        SetWindowPos(glassWithBall, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
         // Проверка условий окончания игры
         if (score <= 0) {
@@ -281,9 +336,7 @@ void StartGame() {
             break;
         }
 
-        
         Sleep(1000);
-
 
     }
 
@@ -308,7 +361,7 @@ void StartGame() {
 
 
 
-    // Ожидание завершения процессов (оригинальный код, перенесённый после цикла)
+    // Ожидание завершения процессов 
     HANDLE hProcesses[3];
     for (int i = 0; i < CountGlasses; i++) {
         hProcesses[i] = pi[i].hProcess;
