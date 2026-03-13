@@ -97,6 +97,15 @@ void StartGame() {
     string appPath = "Glass.exe";
     string BallPath = "Ball.exe";
 
+    HANDLE hEvents[4];
+    // Создаем события. Они изначально в несигнальном состоянии (FALSE)
+    hEvents[0] = CreateEventA(NULL, TRUE, FALSE, "BallReadyEvent");
+    hEvents[1] = CreateEventA(NULL, TRUE, FALSE, "GlassReadyEvent_1");
+    hEvents[2] = CreateEventA(NULL, TRUE, FALSE, "GlassReadyEvent_2");
+    hEvents[3] = CreateEventA(NULL, TRUE, FALSE, "GlassReadyEvent_3");
+
+
+
     // Создание процессов стаканов
     for (int i = 0; i < CountGlasses; i++) {
         string cmdLine = appPath + " " + to_string(i + 1);
@@ -116,6 +125,13 @@ void StartGame() {
     Ball = FindWindowWithRetry("Ball", 100, 50);
     if (!Ball) {
         cerr << "Ball window not found!" << endl;
+    }
+
+    cout << "Ожидание инициализации окон..." << endl;
+    WaitForMultipleObjects(4, hEvents, TRUE, INFINITE);
+
+    for (int i = 0; i < 4; i++) {
+        CloseHandle(hEvents[i]);
     }
 
     // Поиск окон стаканов
@@ -208,9 +224,21 @@ void StartGame() {
         firstRound = false;
 
         // Запрос ответа у пользователя 
-        cout << "\nПод каким стаканом мяч? Введите число (1-3): ";
-        int userGuess;
-        cin >> userGuess;
+        int userGuess = -1;
+        string input;
+
+        while (userGuess < 1 || userGuess > 3) {
+            cout << "\nПод каким стаканом мяч? Введите число (1-3): ";
+            cin >> input;
+
+            if (input == "1" || input == "2" || input == "3") {
+                userGuess = stoi(input);
+            }
+            else {
+                cout << "Нужно ввести 1, 2 или 3!" << endl;
+            }
+        }
+
         userGuess--;
 
         // Проверка ответа 

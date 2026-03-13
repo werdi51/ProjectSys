@@ -5,8 +5,15 @@
 
 int main(int argc, char* argv[])
 {
-
     SetConsoleTitleA("Ball");
+    Sleep(50); // Даем время системе обновить заголовок окна
+
+    // Сигнализируем о готовности
+    HANDLE hEvent = OpenEventA(EVENT_MODIFY_STATE, FALSE, "BallReadyEvent");
+    if (hEvent) {
+        SetEvent(hEvent);
+        CloseHandle(hEvent);
+    }
 
     HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstki");
 
