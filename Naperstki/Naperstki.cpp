@@ -19,7 +19,7 @@ const int GLASS_HEIGHT = 500;     // высота стакана
 const int BALL_WIDTH = 400;        // ширина мяча
 const int BALL_HEIGHT = 300;       // высота мяча
 const int GAP_BETWEEN = 10;       // зазор между стаканами
-const int START_X = 150;           // начальная позиция первого стакана по X
+const int START_X = 20;           // начальная позиция первого стакана по X
 const int START_Y = 300;           // позиция по Y для всех стаканов
 const int BALL_Y_OFFSET = 125;     // смещение мяча относительно верха стакана 
 // ==============================
@@ -140,6 +140,12 @@ void StartGame() {
         hWnds[i] = FindWindowWithRetry(title, 100, 50);
         if (!hWnds[i]) {
             cerr << "Window " << title << " not found!" << endl;
+        }
+    }
+
+    for (int i = 0; i < CountGlasses; i++) {
+        if (hWnds[i]) {
+            SetWindowTextA(hWnds[i], "Glass");
         }
     }
 

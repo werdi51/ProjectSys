@@ -13,6 +13,8 @@ int main(int argc, char* argv[])
         SetConsoleTitleA(title.c_str());
     }
 
+
+
     // Даем ОС миллисекунду на применение заголовка к окну консоли
     Sleep(50);
 
