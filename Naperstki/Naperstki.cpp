@@ -62,12 +62,12 @@ void ShuffleGlasses(vector<HWND>& hWnds) {
             if (ballUnderIdx1) {
                 int ballX = (x1 + dx * i) + (GLASS_WIDTH - BALL_WIDTH) / 2;
                 int ballY = y1 + BALL_Y_OFFSET;
-                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, 0);
+                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_NOACTIVATE);
             }
             else if (ballUnderIdx2) {
                 int ballX = (x2 - dx * i) + (GLASS_WIDTH - BALL_WIDTH) / 2;
                 int ballY = y2 + BALL_Y_OFFSET;
-                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, 0);
+                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_NOACTIVATE);
             }
 
             Sleep(20);
@@ -184,7 +184,7 @@ void StartGame() {
     if (Ball != NULL) {
         SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         Sleep(10);
-        ShowWindow(Ball, SW_SHOW);
+        SetWindowPos(Ball, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
     }
 
     int score = 50; // стартовые очки
@@ -199,7 +199,10 @@ void StartGame() {
             if (Ball != NULL) {
                 // Мяч уже на правильной позиции, поднимаем стакан и показываем
                 SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-                ShowWindow(Ball, SW_SHOW);
+
+                // БЫЛО: ShowWindow(Ball, SW_SHOW);
+                // СТАЛО:
+                SetWindowPos(Ball, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
             }
         }
         firstRound = false;
