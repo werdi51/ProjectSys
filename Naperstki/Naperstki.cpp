@@ -98,7 +98,6 @@ void StartGame() {
     string BallPath = "Ball.exe";
 
     HANDLE hEvents[4];
-    // Создаем события. Они изначально в несигнальном состоянии (FALSE)
     hEvents[0] = CreateEventA(NULL, TRUE, FALSE, "BallReadyEvent");
     hEvents[1] = CreateEventA(NULL, TRUE, FALSE, "GlassReadyEvent_1");
     hEvents[2] = CreateEventA(NULL, TRUE, FALSE, "GlassReadyEvent_2");
@@ -162,14 +161,14 @@ void StartGame() {
             }
         }
     }
-    // Позиционирование мяча под вторым стаканом (индекс 1)
+    // Позиционирование мяча под вторым стаканом
     if (Ball != NULL && glass2X != 0) {
         int ballX = glass2X + (GLASS_WIDTH - BALL_WIDTH) / 2;
         int ballY = glass2Y + BALL_Y_OFFSET;
         SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
     }
 
-    // === НАЧАЛЬНАЯ АНИМАЦИЯ (показываем где мяч) ===
+    // НАЧАЛЬНАЯ АНИМАЦИЯ 
     if (hWnds[1] != NULL && Ball != NULL) {
         Sleep(1000);
 
@@ -201,7 +200,6 @@ void StartGame() {
     // Перемешивание стаканов
     ShuffleGlasses(hWnds);
 
-    // После перемешивания мяч уже в правильной позиции (двигали вместе со стаканом)
     // Поднимаем стакан и показываем мяч
     if (Ball != NULL) {
         SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -209,7 +207,7 @@ void StartGame() {
         SetWindowPos(Ball, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
     }
 
-    int score = 50; // стартовые очки
+    int score = 50;
     bool firstRound = true;
     cout << "Текущий счёт: " << score << endl;
 
@@ -219,11 +217,8 @@ void StartGame() {
             ShuffleGlasses(hWnds);
 
             if (Ball != NULL) {
-                // Мяч уже на правильной позиции, поднимаем стакан и показываем
                 SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-                // БЫЛО: ShowWindow(Ball, SW_SHOW);
-                // СТАЛО:
                 SetWindowPos(Ball, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
             }
         }
@@ -279,7 +274,7 @@ void StartGame() {
             Sleep(15);
         }
 
-        // Возвращаем мяч под стакан (на всякий случай, если координаты сбились)
+        // Возвращаем мяч под стакан (Ну мало ли)
         GetWindowRect(glassWithBall, &glassRect);
         int newBallX = glassRect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
         int newBallY = glassRect.top + BALL_Y_OFFSET;
