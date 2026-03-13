@@ -14,7 +14,6 @@ HWND Ball;
 int ballUnderGlassIndex = 1;
 
 // ========== GLOBAL ==========
-
 const int GLASS_WIDTH = 620;      // ширина стакана
 const int GLASS_HEIGHT = 500;     // высота стакана
 const int BALL_WIDTH = 400;        // ширина мяча
@@ -23,23 +22,26 @@ const int GAP_BETWEEN = 10;       // зазор между стаканами
 const int START_X = 150;           // начальная позиция первого стакана по X
 const int START_Y = 300;           // позиция по Y для всех стаканов
 const int BALL_Y_OFFSET = 125;     // смещение мяча относительно верха стакана 
-
 // ==============================
+
+HWND FindWindowWithRetry(const string& title, int maxAttempts = 50, int delayMs = 50) {
+    for (int i = 0; i < maxAttempts; i++) {
+        HWND hWnd = FindWindowA(NULL, title.c_str());
+        if (hWnd) return hWnd;
+        Sleep(delayMs);
+    }
+    return NULL;
+}
 
 void ShuffleGlasses(vector<HWND>& hWnds) {
     srand(static_cast<unsigned int>(time(0)));
-
     int shuffleCount = 5;
 
     for (int s = 0; s < shuffleCount; s++) {
-        // выбираем два случайных разных стакана
         int idx1 = rand() % 3;
         int idx2 = rand() % 3;
-        while (idx1 == idx2) {
-            idx2 = rand() % 3;
-        }
+        while (idx1 == idx2) idx2 = rand() % 3;
 
-        // текущие позиции окон
         RECT rect1, rect2;
         GetWindowRect(hWnds[idx1], &rect1);
         GetWindowRect(hWnds[idx2], &rect2);
@@ -50,15 +52,29 @@ void ShuffleGlasses(vector<HWND>& hWnds) {
         int steps = 10;
         int dx = (x2 - x1) / steps;
 
+        bool ballUnderIdx1 = (ballUnderGlassIndex == idx1);
+        bool ballUnderIdx2 = (ballUnderGlassIndex == idx2);
+
         for (int i = 0; i <= steps; i++) {
             SetWindowPos(hWnds[idx1], HWND_TOP, x1 + dx * i, y1, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
             SetWindowPos(hWnds[idx2], HWND_TOP, x2 - dx * i, y2, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
+
+            if (ballUnderIdx1) {
+                int ballX = (x1 + dx * i) + (GLASS_WIDTH - BALL_WIDTH) / 2;
+                int ballY = y1 + BALL_Y_OFFSET;
+                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, 0);
+            }
+            else if (ballUnderIdx2) {
+                int ballX = (x2 - dx * i) + (GLASS_WIDTH - BALL_WIDTH) / 2;
+                int ballY = y2 + BALL_Y_OFFSET;
+                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, 0);
+            }
+
             Sleep(20);
         }
 
         swap(hWnds[idx1], hWnds[idx2]);
 
-        // обновляем индекс мяча
         if (ballUnderGlassIndex == idx1) {
             ballUnderGlassIndex = idx2;
         }
@@ -71,9 +87,6 @@ void ShuffleGlasses(vector<HWND>& hWnds) {
 }
 
 void StartGame() {
-
-
-
     STARTUPINFOA Bsi = { sizeof(Bsi) };
     PROCESS_INFORMATION Bpi;
 
@@ -94,62 +107,25 @@ void StartGame() {
             cerr << "Failed to create process " << i + 1 << endl;
         }
     }
-    Sleep(1000);
 
     // Создание процесса мяча
     string cmdLine = BallPath + " " + to_string(1);
     BOOL success = CreateProcessA(
         NULL, (LPSTR)cmdLine.c_str(), NULL, NULL, FALSE,
         CREATE_NEW_CONSOLE, NULL, NULL, &Bsi, &Bpi);
-    if (!success) {
-        cerr << "Failed to create process Ball" << endl;
+    Ball = FindWindowWithRetry("Ball", 100, 50);
+    if (!Ball) {
+        cerr << "Ball window not found!" << endl;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    Sleep(1000); //если работать не будет корректно поставь или тут 100 или в верхнем 100, в общем уменьшить время
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Поиск окон стаканов
     for (int i = 0; i < CountGlasses; i++) {
         string title = "Naperstki_" + to_string(i + 1);
-        hWnds[i] = FindWindowA(NULL, title.c_str());
+        hWnds[i] = FindWindowWithRetry(title, 100, 50);
+        if (!hWnds[i]) {
+            cerr << "Window " << title << " not found!" << endl;
+        }
     }
-
-    // Поиск окна мяча
-    Ball = FindWindowA(NULL, "Ball");
 
     // Расстановка стаканов с равными промежутками
     int glass2X = 0, glass2Y = 0;
@@ -203,35 +179,16 @@ void StartGame() {
     // Перемешивание стаканов
     ShuffleGlasses(hWnds);
 
-    // Показываем мяч под тем стаканом, где он оказался
+    // После перемешивания мяч уже в правильной позиции (двигали вместе со стаканом)
+    // Поднимаем стакан и показываем мяч
     if (Ball != NULL) {
-
-        RECT rect;
-        GetWindowRect(hWnds[ballUnderGlassIndex], &rect);
-
-        int ballX = rect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
-        int ballY = rect.top + BALL_Y_OFFSET;
-
-        SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
+        SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        Sleep(10);
         ShowWindow(Ball, SW_SHOW);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    //--------------------------------------------
-
-    int score = 50;// стартовые очки
-    bool firstRound = true;     
+    int score = 50; // стартовые очки
+    bool firstRound = true;
     cout << "Текущий счёт: " << score << endl;
 
     while (score > 0 && score < 100) {
@@ -240,37 +197,12 @@ void StartGame() {
             ShuffleGlasses(hWnds);
 
             if (Ball != NULL) {
-
-                RECT rect;
-
-                GetWindowRect(hWnds[ballUnderGlassIndex], &rect);
-
-                int ballX = rect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
-
-                int ballY = rect.top + BALL_Y_OFFSET;
-
-                SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
-
-                ShowWindow(Ball, SW_SHOW);
-
+                // Мяч уже на правильной позиции, поднимаем стакан и показываем
                 SetWindowPos(hWnds[ballUnderGlassIndex], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
+                ShowWindow(Ball, SW_SHOW);
             }
         }
         firstRound = false;
-
-
-
-        //--------------------------------------------
-
-
-
-
-
-
-
-
-
 
         // Запрос ответа у пользователя 
         cout << "\nПод каким стаканом мяч? Введите число (1-3): ";
@@ -289,40 +221,34 @@ void StartGame() {
         }
         cout << "Текущий счёт: " << score << endl;
 
-        //  анимация
+        // Анимация поднятия стакана с мячом
         HWND glassWithBall = hWnds[ballUnderGlassIndex];
         RECT glassRect;
         GetWindowRect(glassWithBall, &glassRect);
         int glassX = glassRect.left;
         int glassY = glassRect.top;
 
-        RECT ballRect;
-        GetWindowRect(Ball, &ballRect);
-        int ballX = ballRect.left;
-        int ballY = ballRect.top;
-
-        // Убеждаемся, что мяч под стаканом (на случай, если что-то сбилось)
-        SetWindowPos(Ball, HWND_BOTTOM, ballX, ballY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
-
         // Поднимаем стакан над всеми
         SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
-        for (int i = 0; i <= 40; i++) {
+        for (int i = 0; i <= 70; i++) {
             SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
             Sleep(15);
         }
-        Sleep(1500); // пауза, чтобы игрок увидел мяч
+        Sleep(1500);
 
         // Опускаем стакан
-        for (int i = 40; i >= 0; i--) {
+        for (int i = 70; i >= 0; i--) {
             SetWindowPos(glassWithBall, HWND_TOP, glassX, glassY - i * 5, GLASS_WIDTH, GLASS_HEIGHT, SWP_SHOWWINDOW);
             Sleep(15);
         }
 
-        GetWindowRect(glassWithBall, &glassRect);  // обновляем координаты стакана
+        // Возвращаем мяч под стакан (на всякий случай, если координаты сбились)
+        GetWindowRect(glassWithBall, &glassRect);
         int newBallX = glassRect.left + (GLASS_WIDTH - BALL_WIDTH) / 2;
         int newBallY = glassRect.top + BALL_Y_OFFSET;
         SetWindowPos(Ball, HWND_BOTTOM, newBallX, newBallY, BALL_WIDTH, BALL_HEIGHT, SWP_SHOWWINDOW);
 
+        // Убеждаемся, что стакан сверху
         SetWindowPos(glassWithBall, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
         // Проверка условий окончания игры
@@ -336,29 +262,7 @@ void StartGame() {
         }
 
         Sleep(1000);
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Ожидание завершения процессов 
     HANDLE hProcesses[3];
@@ -382,14 +286,11 @@ int main() {
     HANDLE Mutex = CreateMutexA(NULL, TRUE, "Naperstki");
     Sleep(1000);
 
-    if (!Mutex)
-    {
+    if (!Mutex) {
         cout << "Не создался мьютекс" << endl;
         return 0;
-
     }
-    else
-    {
+    else {
         cout << "          ИГРА В НАПЕРСТКИ" << endl;
         cout << endl;
         cout << "Правила игры:" << endl;
@@ -402,16 +303,9 @@ int main() {
 
         StartGame();
 
-
         ReleaseMutex(Mutex);
-
         Sleep(3000);
         CloseHandle(Mutex);
         return 0;
-
     }
-
-
-    
-
 }

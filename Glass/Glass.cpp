@@ -12,14 +12,13 @@ int main(int argc, char* argv[])
         std::string title = "Naperstki_" + std::to_string(num);
         SetConsoleTitleA(title.c_str());
     }
-    Sleep(2000);
     HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstki");
     if (!Mutex)
     {
         std::cout << "не открылся" <<GetLastError()<< std::endl;
         Sleep(5000);
     }
-    SetConsoleTitleA("thimble");
+    
 
 
     char map[20][20] = {
@@ -47,8 +46,13 @@ int main(int argc, char* argv[])
     };
     for (int i = 0; i < 19; i++) {
         std::cout << map[i] << std::endl;
-    }
+    
+}
 
+    Sleep(2000);
+
+
+    SetConsoleTitleA("thimble");
     //std::cin.get();
 
     WaitForSingleObject(Mutex, INFINITE);
