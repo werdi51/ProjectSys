@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
         CloseHandle(hEvent);
     }
 
-    Sleep(200);
+    //Sleep(200);
 
-    SetConsoleTitleA("Glass");
+    //SetConsoleTitleA("Glass");
 
     HANDLE Mutex = OpenMutexA(SYNCHRONIZE, FALSE, "Naperstki");
     if (!Mutex)
